@@ -12,6 +12,10 @@ makes no network request once the page has loaded.
 
 ## Playing
 
+# Codecrafter's Grimoire
+
+[Launch the Live Interactive Grimoire](https://shaunbeach.github.io/Codecrafters_Grimoire/)
+
 You start on the Quest Map. Each module is a region of the world; each project
 is a standing stone on the road through it. A stone is dark until the one
 before it is passed, amber when it is open, and green once you have passed it.
