@@ -39,6 +39,11 @@ the Stage beneath it.
   note in course order and exports them as one Markdown file.
 - **Free roam** at the bottom of the map opens every project at once.
 
+On a narrow screen the three parts do not fit side by side, so a switcher at
+the top shows one at a time: Brief, Code, Output. The run buttons stay on
+screen in both Code and Output, and pressing Run or Check moves you to Output
+by itself, since seeing what happened is the reason you pressed it.
+
 Keyboard: `Cmd/Ctrl+Enter` runs, `Shift+Cmd/Ctrl+Enter` checks, `Escape` returns
 to the map. Everything is operable without a mouse.
 
@@ -154,6 +159,7 @@ npm run dev &            # the next four drive a real browser
 npm run verify:browser   # all 81 projects through the real worker, network blocked
 npm run shell-check      # map, wizard, stage and notes end to end
 npm run check:a11y       # keyboard journeys; map and list view agree
+npm run check:mobile     # the workspace on a phone: nothing important below the fold
 npm run slice-check      # the spreadsheet grid and the blocking terminal
 
 npm run build && npm run preview &

@@ -24,6 +24,21 @@ const LEFT_TABS: Array<[LeftTab, string]> = [
   ['notes', 'Notes'],
 ]
 
+/**
+ * Below `lg` the two panes stack, and stacking is unusable: the reading pane
+ * takes the whole screen, so the editor, the buttons and the Stage all end up
+ * below the fold. You press Run and, as far as the screen is concerned,
+ * nothing happens. So on narrow viewports one pane shows at a time and the
+ * run buttons stay on screen throughout. Running switches to Output by itself,
+ * because the reason you pressed Run is that you want to see what it did.
+ */
+type MobilePane = 'read' | 'code' | 'output'
+const MOBILE_PANES: Array<[MobilePane, string]> = [
+  ['read', 'Brief'],
+  ['code', 'Code'],
+  ['output', 'Output'],
+]
+
 interface Props {
   project: CourseProject
   content: ProjectContent
@@ -67,6 +82,7 @@ export function ProjectView({
   const [awaitingInput, setAwaitingInput] = useState(false)
   const [saying, setSaying] = useState<string | null>(null)
   const [split, setSplit] = useState(46)
+  const [mobilePane, setMobilePane] = useState<MobilePane>('read')
 
   const dragging = useRef(false)
   const shell = useRef<HTMLDivElement>(null)
@@ -81,6 +97,7 @@ export function ProjectView({
     setError(null)
     setLastAction(null)
     setTab('brief')
+    setMobilePane('read')
     setPose('idle')
     setLiveOutput('')
     setAwaitingInput(false)
@@ -112,6 +129,8 @@ export function ProjectView({
       setLiveOutput('')
       setAwaitingInput(false)
       setLastAction(action)
+      // No-op on a wide screen, where every pane is already visible.
+      setMobilePane('output')
       setState('booting')
       setPose('thinking')
       setSaying(action === 'check' ? speak(project.act, 'checking') : null)
@@ -282,9 +301,38 @@ export function ProjectView({
         className="flex min-h-0 flex-1 flex-col lg:flex-row"
         style={{ '--split': `${split}%` } as React.CSSProperties}
       >
+        <div
+          role="group"
+          aria-label="Show one pane"
+          data-mobile-panes
+          className="flex shrink-0 gap-1 border-b border-ink-700 bg-ink-850 px-3 py-2 lg:hidden"
+        >
+          {MOBILE_PANES.map(([id, label]) => (
+            <button
+              key={id}
+              onClick={() => setMobilePane(id)}
+              aria-pressed={mobilePane === id}
+              className={`flex-1 rounded-lg px-3 py-2 text-[12.5px] font-medium transition-colors ${
+                mobilePane === id
+                  ? 'bg-ink-700 text-ink-50'
+                  : 'text-ink-300 hover:text-ink-100'
+              }`}
+            >
+              {label}
+              {id === 'output' && busy && (
+                <span aria-hidden className="ml-1.5 text-amber-glow">
+                  &bull;
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
         <section
           data-pane="left"
-          className="flex min-h-0 flex-col border-b border-ink-700 lg:w-[var(--split)] lg:border-b-0 lg:border-r"
+          className={`flex min-h-0 flex-col border-b border-ink-700 max-lg:flex-1 lg:w-[var(--split)] lg:border-b-0 lg:border-r ${
+            mobilePane === 'read' ? '' : 'max-lg:hidden'
+          }`}
         >
           <div
             role="tablist"
@@ -437,10 +485,16 @@ export function ProjectView({
           className="hidden w-1.5 shrink-0 cursor-col-resize hover:bg-amber-glow/30 focus-visible:bg-amber-glow/50 lg:block"
         />
 
-        <section className="flex min-h-0 flex-1 flex-col gap-3 p-4">
+        <section
+          className={`flex min-h-0 flex-1 flex-col gap-3 p-4 ${
+            mobilePane === 'read' ? 'max-lg:hidden' : ''
+          }`}
+        >
           <div
             id="editor"
-            className="editor-frame min-h-[220px] flex-1 overflow-hidden rounded-xl border border-ink-700 bg-ink-950"
+            className={`editor-frame min-h-[220px] flex-1 overflow-hidden rounded-xl border border-ink-700 bg-ink-950 ${
+              mobilePane === 'output' ? 'max-lg:hidden' : ''
+            }`}
             data-running={busy ? 'true' : 'false'}
             data-outcome={
               state === 'done' && lastAction === 'check' && report && 'ok' in report
@@ -511,6 +565,7 @@ export function ProjectView({
           </div>
 
           <Stage
+            className={mobilePane === 'code' ? 'max-lg:hidden' : ''}
             state={state}
             status={status}
             report={report}

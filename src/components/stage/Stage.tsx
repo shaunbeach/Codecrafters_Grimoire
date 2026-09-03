@@ -27,6 +27,8 @@ interface Props {
   onStop: () => void
   /** False when the page is not cross-origin isolated. */
   canBlockForInput: boolean
+  /** Layout only — the workspace hides the Stage on narrow viewports. */
+  className?: string
 }
 
 const CHANGE_STYLES: Record<string, string> = {
@@ -79,6 +81,7 @@ export function Stage({
   onEndInput,
   onStop,
   canBlockForInput,
+  className = '',
 }: Props) {
   const urls = useStageBlobs(blobs)
   const [tab, setTab] = useState<StageTab>('console')
@@ -141,7 +144,9 @@ export function Stage({
   }
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ink-700 bg-ink-950">
+    <section
+      className={`flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-ink-700 bg-ink-950 ${className}`}
+    >
       <div role="tablist" aria-label="Output" aria-orientation="horizontal" className="flex shrink-0 border-b border-ink-700">
         {(
           [

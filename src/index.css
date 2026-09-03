@@ -551,6 +551,18 @@
     border-bottom: 1px solid rgb(255 255 255 / 0.06);
   }
 
+  /* CodeMirror is told height: 100%, and a percentage height only resolves
+     against a parent that has one. Two wrappers sit between the frame and the
+     editor — our own, and the .cm-theme div that react-codemirror inserts —
+     and an auto-height link anywhere in that chain makes the editor size to
+     its own content instead, leaving dead space at the bottom of the frame.
+     Invisible on a wide screen, where the code roughly fills the pane;
+     obvious on a phone, where it does not. */
+  .editor,
+  .editor > .cm-theme {
+    height: 100%;
+  }
+
   /* A panel with a hairline of light along its top edge — a lit surface. */
   .panel-lit {
     background:
